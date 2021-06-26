@@ -1,0 +1,292 @@
+{
+	"info": {
+		"_postman_id": "f9c427a9-f864-4f47-89b2-cd48937021b2",
+		"name": "API Automation",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "GetRequest",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"//example tests\r",
+							"pm.test(\"Return Performance Test: Expect Response <500ms\", () => {\r",
+							"    pm.expect(pm.response.responseTime).to.be.below(500)\r",
+							"})\r",
+							"pm.test(\"Return Code Status Test: Expect Success 200\", () => {\r",
+							"    pm.response.to.have.status(200)\r",
+							"})\r",
+							"pm.test(\"Return Has Body Test: Expect Body Non-Empty\", () => {\r",
+							"    pm.response.to.not.have.body(\"[]\")\r",
+							"    pm.response.to.have.body()\r",
+							"})\r",
+							"\r",
+							"//raw incoming data\r",
+							"const responseData = pm.response.json()[0]\r",
+							"console.log(responseData)\r",
+							"\r",
+							"//data for put request\r",
+							"pm.environment.set(\"get_postid\", responseData.id);\r",
+							"pm.environment.set(\"get_userid\", responseData.userId);\r",
+							"\r",
+							"//raw output\r",
+							"const response = pm.response.toJSON()\r",
+							"console.log(response)"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "X-Do-Not-Track",
+						"value": "1",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "https://jsonplaceholder.typicode.com/posts?id=33",
+					"protocol": "https",
+					"host": [
+						"jsonplaceholder",
+						"typicode",
+						"com"
+					],
+					"path": [
+						"posts"
+					],
+					"query": [
+						{
+							"key": "",
+							"value": null,
+							"disabled": true
+						},
+						{
+							"key": "id",
+							"value": "33"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "UpdateRequest",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"//Example Tests\r",
+							"console.log(\"hello\")\r",
+							"pm.test(\"Return Code Status Test: Expect Success 200\", () => {\r",
+							"    pm.response.to.have.status(200);\r",
+							"})\r",
+							"\r",
+							"pm.test(\"Return Performance Test: Expect Response <200ms\", () => {\r",
+							"    pm.expect(pm.response.responseTime).to.be.below(200)\r",
+							"})\r",
+							"\r",
+							"//Test Updated Fields\r",
+							"let responseData = null\r",
+							"pm.test(\"Expect Data\", () => {\r",
+							"    try {responseData = pm.response.json()}\r",
+							"    catch (JSONError) {}\r",
+							"    pm.expect(responseData).to.not.eql(null, \"No Data, Check Environment Variables\")\r",
+							"})\r",
+							"pm.test(\"Expect Updated Body\", () => {\r",
+							"    pm.expect(responseData.title).contains(\"Updated\")\r",
+							"})\r",
+							"\r",
+							"pm.test(\"Expect Updated Title\", () => {\r",
+							"    pm.expect(responseData.body).contains(\"Updated\")\r",
+							"})\r",
+							"\r",
+							"//Test Correct Record\r",
+							"const env_postId = pm.environment.get(\"get_postid\")\r",
+							"const env_userId = pm.environment.get(\"get_userid\")\r",
+							"\r",
+							"pm.test(\"Expect Updated Post is Correct\", () => {\r",
+							"    pm.expect(responseData.userId).equals(env_userId)\r",
+							"    pm.expect(responseData.id).equals(env_postId)\r",
+							"})\r",
+							"\r",
+							"//raw response output\r",
+							"const response = pm.response.toJSON()\r",
+							"console.log(response)\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"userId\" : {{get_userid}},\r\n    \"id\" : {{get_postid}},\r\n    \"body\" : \"Updated Body\",\r\n    \"title\" : \"Updated Title\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://jsonplaceholder.typicode.com/posts/{{get_postid}}",
+					"protocol": "https",
+					"host": [
+						"jsonplaceholder",
+						"typicode",
+						"com"
+					],
+					"path": [
+						"posts",
+						"{{get_postid}}"
+					],
+					"query": [
+						{
+							"key": "",
+							"value": "",
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "PostRequest",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"//example tests\r",
+							"pm.test(\"Return Performance Test: Expect Response <200ms\", () => {\r",
+							"    pm.expect(pm.response.responseTime).to.be.below(200)\r",
+							"})\r",
+							"\r",
+							"pm.test(\"Return Code Status Test: Post Success 201 OR 202\", () => {\r",
+							"    pm.expect(pm.response.code).to.be.oneOf([201, 202]);\r",
+							"})\r",
+							"\r",
+							"pm.test(\"Posted Value Has ID: Expect ID >0\", () => {\r",
+							"    const testData = pm.response.json()\r",
+							"    pm.expect(testData.id).greaterThan(0)\r",
+							"})\r",
+							"\r",
+							"pm.test(\"Posted Value Has Fields: Expect Good Post Values\", () => {\r",
+							"    const testData = pm.response.json()\r",
+							"\r",
+							"    //check exists\r",
+							"    pm.expect(pm.response.text()).to.include(\"id\")\r",
+							"    pm.expect(pm.response.text()).to.include(\"userId\")\r",
+							"    pm.expect(pm.response.text()).to.include(\"body\")\r",
+							"    pm.expect(pm.response.text()).to.include(\"title\")\r",
+							"\r",
+							"    //check good values\r",
+							"    pm.expect(testData.title).not.eql(\"\")\r",
+							"    pm.expect(testData.body).not.eql(\"\")\r",
+							"    pm.expect(testData.userId).greaterThan(0)\r",
+							"})\r",
+							"\r",
+							"//raw posted body\r",
+							"const responseData = pm.response.json()\r",
+							"console.log(responseData)\r",
+							"\r",
+							"//use this data for delete request\r",
+							"pm.environment.set(\"my_postid\", responseData.id);\r",
+							"\r",
+							"//raw response output\r",
+							"const response = pm.response.toJSON()\r",
+							"console.log(response)"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"content-type": true
+				}
+			},
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"title\": \"TestTitle\",\r\n    \"body\": \"This is a test body. There is random text in the body of this record for testing a POST request.\",\r\n    \"userId\": 10,\r\n    \"id\": \"{{id}}\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://jsonplaceholder.typicode.com/posts",
+					"protocol": "https",
+					"host": [
+						"jsonplaceholder",
+						"typicode",
+						"com"
+					],
+					"path": [
+						"posts"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "DeleteRequest",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"//Example Tests\r",
+							"pm.test(\"Return Code Status Test: Expect Success 200\", () => {\r",
+							"    pm.response.to.have.status(200);\r",
+							"})\r",
+							"\r",
+							"pm.test(\"Return Performance Test: Expect Response <200ms\", () => {\r",
+							"    pm.expect(pm.response.responseTime).to.be.below(200)\r",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "https://jsonplaceholder.typicode.com/posts/{{my_postid}}",
+					"protocol": "https",
+					"host": [
+						"jsonplaceholder",
+						"typicode",
+						"com"
+					],
+					"path": [
+						"posts",
+						"{{my_postid}}"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
